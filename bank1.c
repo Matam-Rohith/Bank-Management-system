@@ -1,119 +1,241 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<windows.h>
-#include<string.h>
-#include<conio.h>
-#include"bank1.h"
-int main()
-{
-	int choice;
-	int i;
-	int num;
-	int opt;
-	char captcha[20],*captcha1[11]={"hello123","asdf9","qwerty45","hgjf12","system78","world98","free29","customer76","sweet67","root45","reverse85"};
-	printf("\n\n\t\t\t* W E L C O M E   T O    B A N K    M A N A G E M E N T    S Y S T E M *  \n");
-	printf("\n\t\t\t\t\t\t\t\t\t\t - your perfect banking partner\n");
-	printf("\n\n\n");
-	printf("\tEnter number from 1 to 10: ");
-	scanf("%d",&num);
-	if(num>10)
-	{
-		printf("\n\n\n\t\t\t\t\tInvalid choice,Please enter number (1-10)\n");
-		fordelay(1000000000);
-		clear_screen();
-		main();
-	}
-	printf("\n");
-	printf("\t\t\t\t\t\tcaptcha: %s",captcha1[num]);
-	printf("\n\n\tPlease enter the above captcha: ");
-	scanf("%s",captcha);
-	if(strcmp(captcha,captcha1[num])==0)
-	{
-		printf("\n");
-		printf("\n\n\t\t\t\t\t\tCaptcha matched\t\t\n");
-		printf("\n\n");
-		fordelay(1000000000);
-		printf("\t\t\t\t\tIt is verified that you are human\t\t\t");
-		printf("\n\n");
-		fordelay(1000000000);
-		printf("\n\t\t\t\t\t  Redirecting you to main menu \t\t\t\n");
-		printf("\n\n\n");
-		fordelay(1000000000);
-		printf("\t\t\t\t\t\t KINDLY WAIT ");
-		for(i=0;i<5;i++)
-		{
-			fordelay(1000000000);
-			printf(".");
-		}
-		clear_screen();
-	    setcolor(12);
-	    printf("\n\n");
-	    printf("\n\t\t            ***      W E L C O M E  T O  S R U  B A N K       ***            \t\n");
-	    setcolor(15);
-	    printf("\n");
-		printf("====================================================================================================================\n");
-		while(1)
-		{
-			display_menu();
-			scanf("%d",&choice);
-			switch(choice)
-			{
-				case 1:
-					add_customer();
-					break;
-				case 2:
-					display_specific_customer();
-					break;
-				/*case 3:
-					delete_customer();
-					break;*/
-				case 3:
-					deposit_money();
-					break;
-				case 4:
-					withdraw_money();
-					break;
-				case 5:
-					display_all_customers();
-					break;
-				case 6:
-					modify_customer();
-					break;
-				case 7:
-					online_transaction();
-					break;
-				case 8:
-					write_fcustomers();
-					break;
-				case 9:
-			    	read_fcustomers();
-					break;
-				case 10:
-					clear_screen();
-					setcolor(12);
-					printf("\n\n\n\n");
-					printf("\t\t\t\t  E X I T I N G   T H E   P R O G R A M  \t\t\t\n");
-					printf("\n\n\n");
-					fordelay(1000000000);
-					printf("\t\t\t\t*** T H A N K Y O U   V I S I T   A G A I N ***\t\t\t\n");
-					printf("\n\n\n\n");
-					setcolor(15);
-					exit(0);
-					break;
-				default:
-					setcolor(12);
-					printf("Invalid choice");
-					setcolor(15);
-					break;
-			}
-			     
-				printf("\n");
-		}	
-	}
-	else
-	{
-		pass_check();
-	}
-	
-	return 0;
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_ACCOUNTS 100
+#define FILENAME "bank_data.dat"
+
+// Structure to hold account details
+struct Account {
+    int accountNumber;
+    char name[50];
+    float balance;
+    char pin[5];
+};
+
+// Function prototypes
+void createAccount(struct Account accounts[], int *count);
+void deposit(struct Account accounts[], int count);
+void withdraw(struct Account accounts[], int count);
+void checkBalance(struct Account accounts[], int count);
+void displayAccount(struct Account accounts[], int count);
+int findAccount(struct Account accounts[], int count, int accNo);
+void saveAccounts(struct Account accounts[], int count);
+void loadAccounts(struct Account accounts[], int *count);
+
+int main() {
+    struct Account accounts[MAX_ACCOUNTS];
+    int count = 0;
+    int choice;
+
+    // Load existing accounts from file
+    loadAccounts(accounts, &count);
+
+    while (1) {
+        printf("\n=== Bank Management System ===\n");
+        printf("1. Create Account\n");
+        printf("2. Deposit\n");
+        printf("3. Withdraw\n");
+        printf("4. Check Balance\n");
+        printf("5. Display Account Details\n");
+        printf("6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                createAccount(accounts, &count);
+                break;
+            case 2:
+                deposit(accounts, count);
+                break;
+            case 3:
+                withdraw(accounts, count);
+                break;
+            case 4:
+                checkBalance(accounts, count);
+                break;
+            case 5:
+                displayAccount(accounts, count);
+                break;
+            case 6:
+                saveAccounts(accounts, count);
+                printf("Thank you for using the Bank Management System!\n");
+                exit(0);
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void createAccount(struct Account accounts[], int *count) {
+    if (*count >= MAX_ACCOUNTS) {
+        printf("Cannot create more accounts. Storage full!\n");
+        return;
+    }
+
+    struct Account newAccount;
+    newAccount.accountNumber = 1000 + *count + 1; // Simple account number generation
+    printf("Enter name: ");
+    scanf(" %[^\n]", newAccount.name);
+    printf("Enter initial deposit (minimum 1000): ");
+    scanf("%f", &newAccount.balance);
+    if (newAccount.balance < 1000) {
+        printf("Initial deposit must be at least 1000!\n");
+        return;
+    }
+    printf("Enter 4-digit PIN: ");
+    scanf("%s", newAccount.pin);
+    if (strlen(newAccount.pin) != 4) {
+        printf("PIN must be exactly 4 digits!\n");
+        return;
+    }
+
+    accounts[*count] = newAccount;
+    (*count)++;
+    saveAccounts(accounts, *count);
+    printf("Account created successfully! Account Number: %d\n", newAccount.accountNumber);
+}
+
+int findAccount(struct Account accounts[], int count, int accNo) {
+    for (int i = 0; i < count; i++) {
+        if (accounts[i].accountNumber == accNo) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void deposit(struct Account accounts[], int count) {
+    int accNo;
+    float amount;
+    char pin[5];
+    
+    printf("Enter account number: ");
+    scanf("%d", &accNo);
+    printf("Enter PIN: ");
+    scanf("%s", pin);
+
+    int index = findAccount(accounts, count, accNo);
+    if (index == -1) {
+        printf("Account not found!\n");
+        return;
+    }
+    if (strcmp(accounts[index].pin, pin) != 0) {
+        printf("Incorrect PIN!\n");
+        return;
+    }
+
+    printf("Enter amount to deposit: ");
+    scanf("%f", &amount);
+    if (amount <= 0) {
+        printf("Invalid amount!\n");
+        return;
+    }
+
+    accounts[index].balance += amount;
+    saveAccounts(accounts, count);
+    printf("Deposit successful! New balance: %.2f\n", accounts[index].balance);
+}
+
+void withdraw(struct Account accounts[], int count) {
+    int accNo;
+    float amount;
+    char pin[5];
+    
+    printf("Enter account number: ");
+    scanf("%d", &accNo);
+    printf("Enter PIN: ");
+    scanf("%s", pin);
+
+    int index = findAccount(accounts, count, accNo);
+    if (index == -1) {
+        printf("Account not found!\n");
+        return;
+    }
+    if (strcmp(accounts[index].pin, pin) != 0) {
+        printf("Incorrect PIN!\n");
+        return;
+    }
+
+    printf("Enter amount to withdraw: ");
+    scanf("%f", &amount);
+    if (amount <= 0 || amount > accounts[index].balance) {
+        printf("Invalid amount or insufficient balance!\n");
+        return;
+    }
+
+    accounts[index].balance -= amount;
+    saveAccounts(accounts, count);
+    printf("Withdrawal successful! New balance: %.2f\n", accounts[index].balance);
+}
+
+void checkBalance(struct Account accounts[], int count) {
+    int accNo;
+    char pin[5];
+    
+    printf("Enter account number: ");
+    scanf("%d", &accNo);
+    printf("Enter PIN: ");
+    scanf("%s", pin);
+
+    int index = findAccount(accounts, count, accNo);
+    if (index == -1) {
+        printf("Account not found!\n");
+        return;
+    }
+    if (strcmp(accounts[index].pin, pin) != 0) {
+        printf("Incorrect PIN!\n");
+        return;
+    }
+
+    printf("Current balance: %.2f\n", accounts[index].balance);
+}
+
+void displayAccount(struct Account accounts[], int count) {
+    int accNo;
+    char pin[5];
+    
+    printf("Enter account number: ");
+    scanf("%d", &accNo);
+    printf("Enter PIN: ");
+    scanf("%s", pin);
+
+    int index = findAccount(accounts, count, accNo);
+    if (index == -1) {
+        printf("Account not found!\n");
+        return;
+    }
+    if (strcmp(accounts[index].pin, pin) != 0) {
+        printf("Incorrect PIN!\n");
+        return;
+    }
+
+    printf("\nAccount Details:\n");
+    printf("Account Number: %d\n", accounts[index].accountNumber);
+    printf("Name: %s\n", accounts[index].name);
+    printf("Balance: %.2f\n", accounts[index].balance);
+}
+
+void saveAccounts(struct Account accounts[], int count) {
+    FILE *file = fopen(FILENAME, "wb");
+    if (file == NULL) {
+        printf("Error saving data!\n");
+        return;
+    }
+    fwrite(&count, sizeof(int), 1, file);
+    fwrite(accounts, sizeof(struct Account), count, file);
+    fclose(file);
+}
+
+void loadAccounts(struct Account accounts[], int *count) {
+    FILE *file = fopen(FILENAME, "rb");
+    if (file == NULL) {
+        *count = 0;
+        return;
+    }
+    fread(count, sizeof(int), 1, file);
+    fread(accounts, sizeof(struct Account), *count, file);
+    fclose(file);
 }
