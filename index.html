@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureBank - Online Banking System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1000px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .dashboard.active {
+            display: block;
+        }
+        
+        .account-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .account-info h2 {
+            margin-bottom: 10px;
+        }
+        
+        .balance {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+        
+        .account-number {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .action-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .action-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+        }
+        
+        .action-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .action-card input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .action-card button {
+            width: 100%;
+            padding: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .action-card button:hover {
+            background: #5568d3;
+        }
+        
+        .transactions {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+        }
+        
+        .transactions h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .transaction-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .transaction-info {
+            flex: 1;
+        }
+        
+        .transaction-type {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .transaction-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .transaction-amount {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .transaction-amount.positive {
+            color: #10b981;
+        }
+        
+        .transaction-amount.negative {
+            color: #ef4444;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 SecureBank</h1>
+            <button class="logout-btn hidden" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="content">
+            <!-- Login/Register Section -->
+            <div id="auth-section" class="auth-container">
+                <div id="alert-container"></div>
+                
+                <!-- Login Form -->
+                <div id="login-form">
+                    <h2 style="margin-bottom: 25px; color: #333; text-align: center;">Welcome Back</h2>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password">
+                    </div>
+                    <button class="btn" onclick="login()">Login</button>
+                    <div class="toggle-link" onclick="toggleAuthForm()">Don't have an account? Register</div>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="register-form" class="hidden">
+                    <h2 style="margin-bottom: 25px; color: #333; text-align: center;">Create Account</h2>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="register-name" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="register-email" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="register-password" placeholder="Create a password">
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Deposit</label>
+                        <input type="number" id="register-deposit" placeholder="Enter initial deposit" value="1000">
+                    </div>
+                    <button class="btn" onclick="register()">Register</button>
+                    <div class="toggle-link" onclick="toggleAuthForm()">Already have an account? Login</div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="dashboard">
+                <div class="account-info">
+                    <h2>Welcome, <span id="user-name">User</span>!</h2>
+                    <div class="balance">₹<span id="user-balance">0.00</span></div>
+                    <div class="account-number">Account: <span id="account-number">XXXX-XXXX-XXXX</span></div>
+                </div>
+                
+                <div id="dashboard-alert"></div>
+                
+                <div class="actions-grid">
+                    <div class="action-card">
+                        <h3>💰 Deposit Money</h3>
+                        <input type="number" id="deposit-amount" placeholder="Enter amount">
+                        <button onclick="deposit()">Deposit</button>
+                    </div>
+                    
+                    <div class="action-card">
+                        <h3>💸 Withdraw Money</h3>
+                        <input type="number" id="withdraw-amount" placeholder="Enter amount">
+                        <button onclick="withdraw()">Withdraw</button>
+                    </div>
+                    
+                    <div class="action-card">
+                        <h3>🔄 Transfer Money</h3>
+                        <input type="text" id="transfer-account" placeholder="Recipient account number">
+                        <input type="number" id="transfer-amount" placeholder="Enter amount">
+                        <button onclick="transfer()">Transfer</button>
+                    </div>
+                </div>
+                
+                <div class="transactions">
+                    <h3>📋 Recent Transactions</h3>
+                    <div class="transaction-list" id="transaction-list">
+                        <p style="text-align: center; color: #999;">No transactions yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize or get data from localStorage
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('bankUsers')) || [];
+        }
+        
+        function saveUsers(users) {
+            localStorage.setItem('bankUsers', JSON.stringify(users));
+        }
+        
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem('currentUser'));
+        }
+        
+        function setCurrentUser(user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        }
+        
+        function showAlert(message, type, container = 'alert-container') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.textContent = message;
+            const alertContainer = document.getElementById(container);
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+        
+        function generateAccountNumber() {
+            return 'ACC' + Math.random().toString().substr(2, 10);
+        }
+        
+        function toggleAuthForm() {
+            document.getElementById('login-form').classList.toggle('hidden');
+            document.getElementById('register-form').classList.toggle('hidden');
+            document.getElementById('alert-container').innerHTML = '';
+        }
+        
+        function register() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const deposit = parseFloat(document.getElementById('register-deposit').value) || 0;
+            
+            if (!name || !email || !password) {
+                showAlert('Please fill all fields', 'error');
+                return;
+            }
+            
+            if (deposit < 0) {
+                showAlert('Initial deposit must be positive', 'error');
+                return;
+            }
+            
+            const users = getUsers();
+            if (users.find(u => u.email === email)) {
+                showAlert('Email already registered', 'error');
+                return;
+            }
+            
+            const newUser = {
+                name,
+                email,
+                password,
+                balance: deposit,
+                accountNumber: generateAccountNumber(),
+                transactions: [{
+                    type: 'Initial Deposit',
+                    amount: deposit,
+                    date: new Date().toLocaleString(),
+                    balance: deposit
+                }]
+            };
+            
+            users.push(newUser);
+            saveUsers(users);
+            showAlert('Account created successfully! Please login.', 'success');
+            setTimeout(() => toggleAuthForm(), 1500);
+        }
+        
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!email || !password) {
+                showAlert('Please fill all fields', 'error');
+                return;
+            }
+            
+            const users = getUsers();
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                showAlert('Invalid email or password', 'error');
+                return;
+            }
+            
+            setCurrentUser(user);
+            showDashboard();
+        }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('dashboard-section').classList.remove('active');
+            document.querySelector('.logout-btn').classList.add('hidden');
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+        }
+        
+        function showDashboard() {
+            const user = getCurrentUser();
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.add('active');
+            document.querySelector('.logout-btn').classList.remove('hidden');
+            
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-balance').textContent = user.balance.toFixed(2);
+            document.getElementById('account-number').textContent = user.accountNumber;
+            
+            displayTransactions();
+        }
+        
+        function updateUserData(updatedUser) {
+            const users = getUsers();
+            const index = users.findIndex(u => u.email === updatedUser.email);
+            users[index] = updatedUser;
+            saveUsers(users);
+            setCurrentUser(updatedUser);
+        }
+        
+        function deposit() {
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            
+            if (!amount || amount <= 0) {
+                showAlert('Please enter a valid amount', 'error', 'dashboard-alert');
+                return;
+            }
+            
+            const user = getCurrentUser();
+            user.balance += amount;
+            user.transactions.unshift({
+                type: 'Deposit',
+                amount: amount,
+                date: new Date().toLocaleString(),
+                balance: user.balance
+            });
+            
+            updateUserData(user);
+            showAlert(`Successfully deposited ₹${amount.toFixed(2)}`, 'success', 'dashboard-alert');
+            document.getElementById('deposit-amount').value = '';
+            document.getElementById('user-balance').textContent = user.balance.toFixed(2);
+            displayTransactions();
+        }
+        
+        function withdraw() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const user = getCurrentUser();
+            
+            if (!amount || amount <= 0) {
+                showAlert('Please enter a valid amount', 'error', 'dashboard-alert');
+                return;
+            }
+            
+            if (amount > user.balance) {
+                showAlert('Insufficient balance', 'error', 'dashboard-alert');
+                return;
+            }
+            
+            user.balance -= amount;
+            user.transactions.unshift({
+                type: 'Withdrawal',
+                amount: -amount,
+                date: new Date().toLocaleString(),
+                balance: user.balance
+            });
+            
+            updateUserData(user);
+            showAlert(`Successfully withdrawn ₹${amount.toFixed(2)}`, 'success', 'dashboard-alert');
+            document.getElementById('withdraw-amount').value = '';
+            document.getElementById('user-balance').textContent = user.balance.toFixed(2);
+            displayTransactions();
+        }
+        
+        function transfer() {
+            const recipientAccount = document.getElementById('transfer-account').value;
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+            const user = getCurrentUser();
+            
+            if (!recipientAccount || !amount || amount <= 0) {
+                showAlert('Please fill all fields with valid values', 'error', 'dashboard-alert');
+                return;
+            }
+            
+            if (amount > user.balance) {
+                showAlert('Insufficient balance', 'error', 'dashboard-alert');
+                return;
+            }
+            
+            const users = getUsers();
+            const recipient = users.find(u => u.accountNumber === recipientAccount);
+            
+            if (!recipient) {
+                showAlert('Recipient account not found', 'error', 'dashboard-alert');
+                return;
+            }
+            
+            if (recipient.email === user.email) {
+                showAlert('Cannot transfer to your own account', 'error', 'dashboard-alert');
+                return;
+            }
+            
+            user.balance -= amount;
+            user.transactions.unshift({
+                type: `Transfer to ${recipient.name}`,
+                amount: -amount,
+                date: new Date().toLocaleString(),
+                balance: user.balance
+            });
+            
+            recipient.balance += amount;
+            recipient.transactions.unshift({
+                type: `Transfer from ${user.name}`,
+                amount: amount,
+                date: new Date().toLocaleString(),
+                balance: recipient.balance
+            });
+            
+            updateUserData(user);
+            const recipientIndex = users.findIndex(u => u.email === recipient.email);
+            users[recipientIndex] = recipient;
+            saveUsers(users);
+            
+            showAlert(`Successfully transferred ₹${amount.toFixed(2)} to ${recipient.name}`, 'success', 'dashboard-alert');
+            document.getElementById('transfer-account').value = '';
+            document.getElementById('transfer-amount').value = '';
+            document.getElementById('user-balance').textContent = user.balance.toFixed(2);
+            displayTransactions();
+        }
+        
+        function displayTransactions() {
+            const user = getCurrentUser();
+            const transactionList = document.getElementById('transaction-list');
+            
+            if (!user.transactions || user.transactions.length === 0) {
+                transactionList.innerHTML = '<p style="text-align: center; color: #999;">No transactions yet</p>';
+                return;
+            }
+            
+            transactionList.innerHTML = user.transactions.slice(0, 10).map(t => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-type">${t.type}</div>
+                        <div class="transaction-date">${t.date}</div>
+                    </div>
+                    <div class="transaction-amount ${t.amount >= 0 ? 'positive' : 'negative'}">
+                        ${t.amount >= 0 ? '+' : ''}₹${Math.abs(t.amount).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Check if user is already logged in
+        window.onload = function() {
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                showDashboard();
+            }
+        };
+    </script>
+</body>
+</html>
